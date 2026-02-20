@@ -11,55 +11,52 @@ const MealDetails = ({ likedIds, toggleLike }) => {
   useEffect(() => {
     setLoading(true)
     fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`)
-      .then(res => res.json())
+      .then(r => r.json())
       .then(data => {
-        setMeal(data.meals ? data.meals[0] : null)
+        setMeal(data.meals?.[0] || null)
         if (!data.meals) setError('Meal not found.')
       })
-      .catch(() => setError('Failed to load meal details.'))
+      .catch(() => setError('Failed to load meal.'))
       .finally(() => setLoading(false))
   }, [id])
 
   if (loading) return <div className="loading"><div className="spinner" /> Loading…</div>
-  if (error) return <div className="error-msg page-pad">{error}</div>
+  if (error) return <div className="error-box page" style={{ marginTop: 40 }}>{error}</div>
   if (!meal) return null
 
   const ingredients = []
   for (let i = 1; i <= 20; i++) {
-    const ingredient = meal[`strIngredient${i}`]
-    const measure = meal[`strMeasure${i}`]
-    if (ingredient && ingredient.trim()) {
-      ingredients.push(`${measure ? measure.trim() + ' ' : ''}${ingredient.trim()}`)
-    }
+    const ing = meal[`strIngredient${i}`]
+    const meas = meal[`strMeasure${i}`]
+    if (ing?.trim()) ingredients.push(`${meas?.trim() || ''} ${ing.trim()}`.trim())
   }
 
   const isLiked = likedIds.includes(meal.idMeal)
   const instructions = meal.strInstructions || ''
-  const shortInstructions = instructions.length > 500 ? instructions.slice(0, 500) + '...' : instructions
 
   return (
     <div className="page">
-      <button className="back-btn" onClick={() => navigate(-1)}>← Back</button>
-      <div className="detail-container">
-        <div className="detail-img-wrap">
-          <img src={meal.strMealThumb} alt={meal.strMeal} className="detail-img" />
+      <button className="btn btn-back" onClick={() => navigate(-1)}>← Back</button>
+      <div className="detail-layout">
+        <div className="detail-img-sticky">
+          <img src={meal.strMealThumb} alt={meal.strMeal} />
         </div>
-        <div className="detail-info">
+        <div className="detail-content">
           <div className="detail-header">
             <h1 className="detail-title">{meal.strMeal}</h1>
-            <button className={`btn-like large ${isLiked ? 'liked' : ''}`} onClick={() => toggleLike(meal.idMeal)}>
+            <button className={`btn btn-like ${isLiked ? 'liked' : ''}`} onClick={() => toggleLike(meal.idMeal)}>
               {isLiked ? '❤️ Liked' : '🤍 Like'}
             </button>
           </div>
 
-          <div className="detail-tags">
-            <span className="tag category-tag">📂 {meal.strCategory}</span>
-            {meal.strArea && <span className="tag area-tag">🌍 {meal.strArea}</span>}
+          <div className="tags">
+            {meal.strCategory && <span className="tag accent">{meal.strCategory}</span>}
+            {meal.strArea && <span className="tag blue">{meal.strArea}</span>}
           </div>
 
-          <div className="detail-section">
-            <h2>🥘 Ingredients</h2>
-            <ul className="ingredients-list">
+          <div>
+            <p className="section-title">Ingredients</p>
+            <ul className="ingredients-grid">
               {ingredients.map((ing, i) => (
                 <li key={i} className="ingredient-item">
                   <span className="ingredient-dot" />{ing}
@@ -68,13 +65,15 @@ const MealDetails = ({ likedIds, toggleLike }) => {
             </ul>
           </div>
 
-          <div className="detail-section">
-            <h2>📋 Instructions</h2>
-            <p className="instructions-text">{shortInstructions}</p>
+          <div>
+            <p className="section-title">Instructions</p>
+            <p className="instructions">
+              {instructions.length > 600 ? instructions.slice(0, 600) + '…' : instructions}
+            </p>
           </div>
 
           {meal.strYoutube && (
-            <a href={meal.strYoutube} target="_blank" rel="noopener noreferrer" className="youtube-link">
+            <a href={meal.strYoutube} target="_blank" rel="noopener noreferrer" className="yt-link">
               ▶ Watch on YouTube
             </a>
           )}

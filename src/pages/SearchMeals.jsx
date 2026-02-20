@@ -7,96 +7,66 @@ const SearchMeals = ({ likedIds, toggleLike }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const fetchByLetter = async (letter = 'a') => {
+  const fetchByLetter = (letter) => {
     setLoading(true)
     setError(null)
-    try {
-      const res = await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?f=${letter}`)
-      if (!res.ok) throw new Error('Network error')
-      const data = await res.json()
-      setMeals(data.meals || [])
-    } catch {
-      setError('Failed to load meals. Please try again.')
-      setMeals([])
-    } finally {
-      setLoading(false)
-    }
+    fetch(`https://www.themealdb.com/api/json/v1/1/search.php?f=${letter}`)
+      .then(r => r.json())
+      .then(data => setMeals(data.meals || []))
+      .catch(() => setError('Failed to load meals.'))
+      .finally(() => setLoading(false))
   }
 
-  const fetchByName = async (name) => {
+  const fetchByName = (name) => {
     setLoading(true)
     setError(null)
-    try {
-      const res = await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(name)}`)
-      if (!res.ok) throw new Error('Network error')
-      const data = await res.json()
-      setMeals(data.meals || [])
-      if (!data.meals) setError(`No meals found for "${name}"`)
-    } catch {
-      setError('Failed to search meals. Please try again.')
-      setMeals([])
-    } finally {
-      setLoading(false)
-    }
+    fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(name)}`)
+      .then(r => r.json())
+      .then(data => {
+        setMeals(data.meals || [])
+        if (!data.meals) setError(`No results for "${name}"`)
+      })
+      .catch(() => setError('Search failed.'))
+      .finally(() => setLoading(false))
   }
 
-  useEffect(() => {
-    fetchByLetter('a')
-  }, [])
+  useEffect(() => { fetchByLetter('a') }, [])
 
   const handleSearch = () => {
-    const trimmed = query.trim()
-    if (!trimmed) {
-      fetchByLetter('a')
-    } else {
-      fetchByName(trimmed)
-    }
-  }
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') handleSearch()
+    const q = query.trim()
+    q ? fetchByName(q) : fetchByLetter('a')
   }
 
   return (
     <div className="page">
       <div className="search-hero">
-        <h1 className="page-title">Discover Meals 🍜</h1>
-        <p className="page-subtitle">Search from thousands of meals worldwide</p>
+        <h1 className="page-title">Discover <span className="highlight">Meals</span></h1>
+        <p className="page-subtitle">Search thousands of recipes from around the world</p>
         <div className="search-bar">
           <input
-            type="text"
             className="search-input"
-            placeholder="Search for a meal…"
+            placeholder="Search meals…"
             value={query}
             onChange={e => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
+            onKeyDown={e => e.key === 'Enter' && handleSearch()}
           />
-          <button className="search-btn" onClick={handleSearch}>
-            Search
-          </button>
+          <button className="search-btn" onClick={handleSearch}>Search</button>
         </div>
         <div className="letter-filters">
-          {'abcdefghijklmnopqrstuvwxyz'.split('').map(letter => (
-            <button
-              key={letter}
-              className="letter-btn"
-              onClick={() => {
-                setQuery('')
-                fetchByLetter(letter)
-              }}
-            >
-              {letter.toUpperCase()}
+          {'abcdefghijklmnopqrstuvwxyz'.split('').map(l => (
+            <button key={l} className="letter-btn" onClick={() => { setQuery(''); fetchByLetter(l) }}>
+              {l.toUpperCase()}
             </button>
           ))}
         </div>
       </div>
 
-      {loading && <div className="loading"><div className="spinner" /> Loading meals…</div>}
-      {error && !loading && <div className="error-msg">{error}</div>}
+      {loading && <div className="loading"><div className="spinner" /> Loading…</div>}
+      {error && !loading && <div className="error-box">{error}</div>}
 
       {!loading && !error && (
         <>
-          <p className="results-count">{meals.length} meal{meals.length !== 1 ? 's' : ''} found</p>
+          <p className="section-label">{meals.length} Meals found</p>
           <div className="meals-grid">
             {meals.map(meal => (
               <MealCard key={meal.idMeal} meal={meal} likedIds={likedIds} toggleLike={toggleLike} />

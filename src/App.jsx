@@ -5,6 +5,7 @@ import SearchMeals from './pages/SearchMeals.jsx'
 import MealDetails from './pages/MealDetails.jsx'
 import LikedMeals from './pages/LikedMeals.jsx'
 import Categories from './pages/Categories.jsx'
+import CategoryMeals from './pages/CategoryMeals.jsx'
 
 const App = () => {
   const [likedIds, setLikedIds] = useState(() => {
@@ -37,6 +38,7 @@ const App = () => {
           <Route path="/meal/:id" element={<MealDetails likedIds={likedIds} toggleLike={toggleLike} />} />
           <Route path="/liked" element={<LikedMeals likedIds={likedIds} removeLike={removeLike} />} />
           <Route path="/categories" element={<Categories />} />
+          <Route path="/category/:name" element={<CategoryMeals likedIds={likedIds} toggleLike={toggleLike} />} />
         </Routes>
       </main>
     </div>

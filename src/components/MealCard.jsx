@@ -5,19 +5,19 @@ const MealCard = ({ meal, likedIds, toggleLike }) => {
   const isLiked = likedIds.includes(meal.idMeal)
 
   return (
-    <div className="meal-card">
-      <div className="meal-card-img-wrap">
-        <img src={meal.strMealThumb} alt={meal.strMeal} className="meal-card-img" loading="lazy" />
-        <span className="meal-category-badge">{meal.strCategory}</span>
+    <div className="card">
+      <div className="card-img-wrap">
+        <img src={meal.strMealThumb} alt={meal.strMeal} className="card-img" loading="lazy" />
+        <span className="card-badge">{meal.strCategory}</span>
       </div>
-      <div className="meal-card-body">
-        <h3 className="meal-card-title">{meal.strMeal}</h3>
-        <div className="meal-card-actions">
-          <button className={`btn-like ${isLiked ? 'liked' : ''}`} onClick={() => toggleLike(meal.idMeal)}>
-            {isLiked ? '❤️ Liked' : '🤍 Like'}
+      <div className="card-body">
+        <p className="card-title">{meal.strMeal}</p>
+        <div className="card-actions">
+          <button className={`btn btn-like ${isLiked ? 'liked' : ''}`} onClick={() => toggleLike(meal.idMeal)}>
+            {isLiked ? '❤️' : '🤍'} {isLiked ? 'Liked' : 'Like'}
           </button>
-          <button className="btn-details" onClick={() => navigate(`/meal/${meal.idMeal}`)}>
-            View Details →
+          <button className="btn btn-primary" onClick={() => navigate(`/meal/${meal.idMeal}`)}>
+            Details →
           </button>
         </div>
       </div>

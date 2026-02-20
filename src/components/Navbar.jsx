@@ -3,32 +3,16 @@ import { NavLink } from 'react-router-dom'
 const Navbar = ({ likedCount }) => {
   return (
     <nav className="navbar">
-      <div className="navbar-brand">
-        <span className="brand-icon">🍽️</span>
-        <span className="brand-name">MealExplorer</span>
-      </div>
+      <div className="brand-name">Meal<span>Explorer</span></div>
       <div className="navbar-links">
-        <NavLink
-          to="/"
-          className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-          end
-        >
-          🔍 Search
+        <NavLink to="/" end className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+          Search
         </NavLink>
-        <NavLink
-          to="/categories"
-          className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-        >
-          📂 Categories
+        <NavLink to="/categories" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+          Categories
         </NavLink>
-        <NavLink
-          to="/liked"
-          className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-        >
-          ❤️ Liked Meals
-          {likedCount > 0 && (
-            <span className="liked-badge">{likedCount}</span>
-          )}
+        <NavLink to="/liked" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+          Liked {likedCount > 0 && <span className="liked-badge">{likedCount}</span>}
         </NavLink>
       </div>
     </nav>

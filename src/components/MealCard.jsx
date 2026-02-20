@@ -1,27 +1,38 @@
+import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 
-const MealCard = ({ meal, likedIds, toggleLike }) => {
+const MealCard = ({ meal, isLiked, onToggleLike }) => {
   const navigate = useNavigate()
-  const isLiked = likedIds.includes(meal.idMeal)
 
   return (
-    <div className="card">
-      <div className="card-img-wrap">
-        <img src={meal.strMealThumb} alt={meal.strMeal} className="card-img" loading="lazy" />
-        <span className="card-badge">{meal.strCategory}</span>
+    <motion.div
+      className="meal-card"
+      whileHover={{ y: -4 }}
+      transition={{ duration: 0.2 }}
+    >
+      {/* Image */}
+      <div className="meal-card-img-wrap">
+        <img src={meal.strMealThumb} alt={meal.strMeal} className="meal-card-img" loading="lazy" />
+        <span className="card-category">{meal.strCategory}</span>
+        <button
+          className={`card-like-btn ${isLiked ? 'liked' : ''}`}
+          onClick={e => { e.stopPropagation(); onToggleLike(meal.idMeal) }}
+          aria-label={isLiked ? 'Unlike' : 'Like'}
+        >
+          {isLiked ? '❤️' : '🤍'}
+        </button>
       </div>
-      <div className="card-body">
-        <p className="card-title">{meal.strMeal}</p>
-        <div className="card-actions">
-          <button className={`btn btn-like ${isLiked ? 'liked' : ''}`} onClick={() => toggleLike(meal.idMeal)}>
-            {isLiked ? '❤️' : '🤍'} {isLiked ? 'Liked' : 'Like'}
-          </button>
-          <button className="btn btn-primary" onClick={() => navigate(`/meal/${meal.idMeal}`)}>
-            Details →
+
+      {/* Body */}
+      <div className="meal-card-body">
+        <p className="meal-card-title">{meal.strMeal}</p>
+        <div className="meal-card-footer">
+          <button className="btn btn-orange" style={{ flex: 1 }} onClick={() => navigate(`/meal/${meal.idMeal}`)}>
+            View Recipe →
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 

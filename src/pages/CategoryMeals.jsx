@@ -1,5 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { filterByCategory } from '../api/mealApi'
+import MealCard from '../components/MealCard'
+import LoadingSpinner from '../components/LoadingSpinner'
+import EmptyState from '../components/EmptyState'
+
+const grid = { hidden: {}, show: { transition: { staggerChildren: 0.05 } } }
+const card = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.25 } } }
 
 const CategoryMeals = ({ likedIds, toggleLike }) => {
   const { name } = useParams()
@@ -10,50 +18,41 @@ const CategoryMeals = ({ likedIds, toggleLike }) => {
 
   useEffect(() => {
     setLoading(true)
-    fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?c=${encodeURIComponent(name)}`)
-      .then(r => r.json())
-      .then(data => setMeals(data.meals || []))
+    filterByCategory(name)
+      .then(d => setMeals(d.meals || []))
       .catch(() => setError('Failed to load meals.'))
       .finally(() => setLoading(false))
   }, [name])
 
   return (
-    <div className="page">
-      <button className="btn btn-back" onClick={() => navigate('/categories')}>← Categories</button>
+    <motion.div className="page" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+      <button className="btn-back" onClick={() => navigate('/categories')}>← Categories</button>
       <div className="page-header">
-        <h1 className="page-title">{name}</h1>
-        <p className="page-subtitle">{meals.length} meals in this category</p>
+        <h1>{name}</h1>
+        <p>{meals.length} recipes in this category</p>
       </div>
 
-      {loading && <div className="loading"><div className="spinner" /> Loading…</div>}
+      {loading && <LoadingSpinner text="Loading meals…" />}
       {error && <div className="error-box">{error}</div>}
 
-      {!loading && !error && (
-        <div className="meals-grid">
-          {meals.map(meal => (
-            <div key={meal.idMeal} className="card">
-              <div className="card-img-wrap">
-                <img src={meal.strMealThumb} alt={meal.strMeal} className="card-img" loading="lazy" />
-              </div>
-              <div className="card-body">
-                <p className="card-title">{meal.strMeal}</p>
-                <div className="card-actions">
-                  <button
-                    className={`btn btn-like ${likedIds.includes(meal.idMeal) ? 'liked' : ''}`}
-                    onClick={() => toggleLike(meal.idMeal)}
-                  >
-                    {likedIds.includes(meal.idMeal) ? '❤️ Liked' : '🤍 Like'}
-                  </button>
-                  <button className="btn btn-primary" onClick={() => navigate(`/meal/${meal.idMeal}`)}>
-                    Details →
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+      {!loading && !error && meals.length === 0 && (
+        <EmptyState icon="🍽️" title="No meals found" subtitle="This category seems empty." />
       )}
-    </div>
+
+      {!loading && !error && meals.length > 0 && (
+        <motion.div className="meals-grid" variants={grid} initial="hidden" animate="show">
+          {meals.map(meal => (
+            <motion.div key={meal.idMeal} variants={card}>
+              <MealCard
+                meal={meal}
+                isLiked={likedIds.includes(meal.idMeal)}
+                onToggleLike={toggleLike}
+              />
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
+    </motion.div>
   )
 }
 

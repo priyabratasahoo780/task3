@@ -1,85 +1,94 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import useMealDetails from '../hooks/useMealDetails'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 const MealDetails = ({ likedIds, toggleLike }) => {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [meal, setMeal] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const { meal, loading, error } = useMealDetails(id)
+  const [showFull, setShowFull] = useState(false)
 
-  useEffect(() => {
-    setLoading(true)
-    fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`)
-      .then(r => r.json())
-      .then(data => {
-        setMeal(data.meals?.[0] || null)
-        if (!data.meals) setError('Meal not found.')
-      })
-      .catch(() => setError('Failed to load meal.'))
-      .finally(() => setLoading(false))
-  }, [id])
+  if (loading) return <LoadingSpinner text="Loading recipe…" />
+  if (error || !meal) return <div className="error-box page">{error || 'Meal not found.'}</div>
 
-  if (loading) return <div className="loading"><div className="spinner" /> Loading…</div>
-  if (error) return <div className="error-box page" style={{ marginTop: 40 }}>{error}</div>
-  if (!meal) return null
-
+  // Parse ingredients (max 20 slots in API)
   const ingredients = []
   for (let i = 1; i <= 20; i++) {
-    const ing = meal[`strIngredient${i}`]
+    const ing  = meal[`strIngredient${i}`]
     const meas = meal[`strMeasure${i}`]
-    if (ing?.trim()) ingredients.push(`${meas?.trim() || ''} ${ing.trim()}`.trim())
+    if (ing?.trim()) ingredients.push(`${meas?.trim() ? meas.trim() + ' ' : ''}${ing.trim()}`)
   }
 
   const isLiked = likedIds.includes(meal.idMeal)
   const instructions = meal.strInstructions || ''
+  const shortInstructions = instructions.length > 600 ? instructions.slice(0, 600) + '…' : instructions
 
   return (
-    <div className="page">
-      <button className="btn btn-back" onClick={() => navigate(-1)}>← Back</button>
-      <div className="detail-layout">
+    <motion.div className="page" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+      <button className="btn-back" onClick={() => navigate(-1)}>← Back</button>
+
+      <div className="detail-grid">
+        {/* Left column — sticky image */}
         <div className="detail-img-sticky">
           <img src={meal.strMealThumb} alt={meal.strMeal} />
+          <div className="detail-tags">
+            {meal.strCategory && <span className="tag tag-orange">🍴 {meal.strCategory}</span>}
+            {meal.strArea     && <span className="tag tag-blue">🌍 {meal.strArea}</span>}
+            {meal.strTags && meal.strTags.split(',').slice(0, 2).map(t => (
+              <span key={t} className="tag tag-green">{t.trim()}</span>
+            ))}
+          </div>
         </div>
+
+        {/* Right column — details */}
         <div className="detail-content">
-          <div className="detail-header">
-            <h1 className="detail-title">{meal.strMeal}</h1>
-            <button className={`btn btn-like ${isLiked ? 'liked' : ''}`} onClick={() => toggleLike(meal.idMeal)}>
-              {isLiked ? '❤️ Liked' : '🤍 Like'}
+          <div className="detail-top">
+            <h1 className="detail-name">{meal.strMeal}</h1>
+            <button
+              className={`btn ${isLiked ? 'btn-orange' : 'btn-outline'}`}
+              style={{ flexShrink: 0 }}
+              onClick={() => toggleLike(meal.idMeal)}
+            >
+              {isLiked ? '❤️ Saved' : '🤍 Save'}
             </button>
           </div>
 
-          <div className="tags">
-            {meal.strCategory && <span className="tag accent">{meal.strCategory}</span>}
-            {meal.strArea && <span className="tag blue">{meal.strArea}</span>}
-          </div>
+          <div className="divider" />
 
+          {/* Ingredients */}
           <div>
-            <p className="section-title">Ingredients</p>
+            <p className="sub-heading">Ingredients ({ingredients.length})</p>
             <ul className="ingredients-grid">
               {ingredients.map((ing, i) => (
-                <li key={i} className="ingredient-item">
-                  <span className="ingredient-dot" />{ing}
-                </li>
+                <li key={i} className="ing-item"><span className="ing-dot" />{ing}</li>
               ))}
             </ul>
           </div>
 
+          <div className="divider" />
+
+          {/* Instructions */}
           <div>
-            <p className="section-title">Instructions</p>
-            <p className="instructions">
-              {instructions.length > 600 ? instructions.slice(0, 600) + '…' : instructions}
-            </p>
+            <p className="sub-heading">Instructions</p>
+            <p className="instructions">{showFull ? instructions : shortInstructions}</p>
+            {instructions.length > 600 && (
+              <button className="read-more-btn" onClick={() => setShowFull(v => !v)}>
+                {showFull ? 'Show Less' : 'Read More'}
+              </button>
+            )}
           </div>
 
+          {/* YouTube */}
           {meal.strYoutube && (
-            <a href={meal.strYoutube} target="_blank" rel="noopener noreferrer" className="yt-link">
-              ▶ Watch on YouTube
+            <a href={meal.strYoutube} target="_blank" rel="noopener noreferrer" className="yt-btn">
+              ▶ Watch Video Tutorial
             </a>
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 

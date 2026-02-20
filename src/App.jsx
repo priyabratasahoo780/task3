@@ -1,47 +1,33 @@
-import { Routes, Route } from 'react-router-dom'
-import { useState } from 'react'
-import Navbar from './components/Navbar.jsx'
-import SearchMeals from './pages/SearchMeals.jsx'
-import MealDetails from './pages/MealDetails.jsx'
-import LikedMeals from './pages/LikedMeals.jsx'
-import Categories from './pages/Categories.jsx'
-import CategoryMeals from './pages/CategoryMeals.jsx'
+import { BrowserRouter } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import Navbar from './components/Navbar'
+import AppRoutes from './routes/AppRoutes'
+import useLikedMeals from './hooks/useLikedMeals'
 
 const App = () => {
-  const [likedIds, setLikedIds] = useState(() => {
-    return JSON.parse(localStorage.getItem('likedMeals')) || []
-  })
+  const { likedIds, toggle, remove } = useLikedMeals()
 
-  const toggleLike = (id) => {
-    let updated
-    if (likedIds.includes(id)) {
-      updated = likedIds.filter(x => x !== id)
-    } else {
-      updated = [...likedIds, id]
-    }
-    localStorage.setItem('likedMeals', JSON.stringify(updated))
-    setLikedIds(updated)
-  }
+  // Theme: persist in localStorage
+  const [isDark, setIsDark] = useState(() => localStorage.getItem('theme') !== 'light')
 
-  const removeLike = (id) => {
-    const updated = likedIds.filter(x => x !== id)
-    localStorage.setItem('likedMeals', JSON.stringify(updated))
-    setLikedIds(updated)
-  }
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
+    localStorage.setItem('theme', isDark ? 'dark' : 'light')
+  }, [isDark])
 
   return (
-    <div className="app">
-      <Navbar likedCount={likedIds.length} />
-      <main className="main-content">
-        <Routes>
-          <Route path="/" element={<SearchMeals likedIds={likedIds} toggleLike={toggleLike} />} />
-          <Route path="/meal/:id" element={<MealDetails likedIds={likedIds} toggleLike={toggleLike} />} />
-          <Route path="/liked" element={<LikedMeals likedIds={likedIds} removeLike={removeLike} />} />
-          <Route path="/categories" element={<Categories />} />
-          <Route path="/category/:name" element={<CategoryMeals likedIds={likedIds} toggleLike={toggleLike} />} />
-        </Routes>
-      </main>
-    </div>
+    <BrowserRouter>
+      <div className="app">
+        <Navbar likedCount={likedIds.length} isDark={isDark} toggleTheme={() => setIsDark(v => !v)} />
+        <main className="main">
+          <AppRoutes likedIds={likedIds} toggleLike={toggle} removeLike={remove} />
+        </main>
+        <footer className="footer">
+          <span className="footer-brand">Meal<span>Explorer</span></span>
+          <span className="footer-note">Powered by TheMealDB · {new Date().getFullYear()}</span>
+        </footer>
+      </div>
+    </BrowserRouter>
   )
 }
 

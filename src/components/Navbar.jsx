@@ -14,6 +14,9 @@ const Navbar = ({ likedCount, isDark, toggleTheme }) => (
         <NavLink to="/" end className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
           Search
         </NavLink>
+        <NavLink to="/indian" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+          Indian
+        </NavLink>
         <NavLink to="/categories" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
           Categories
         </NavLink>

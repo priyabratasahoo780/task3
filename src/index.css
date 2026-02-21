@@ -335,12 +335,36 @@ body {
   .detail-img-sticky { position: static; max-width: 440px; margin: 0 auto; }
 }
 @media (max-width: 600px) {
-  .navbar-inner { padding: 0 14px; }
-  .nav-link { padding: 7px 10px; font-size: 0.82rem; }
+  .navbar { position: relative; } /* Let it scroll naturally on small screens */
+  .navbar-inner { 
+    padding: 12px 14px; 
+    height: auto; 
+    flex-direction: column; 
+    gap: 14px; 
+  }
+  .navbar-logo { justify-content: center; width: 100%; }
+  .navbar-right { 
+    flex-wrap: wrap; 
+    justify-content: center; 
+    width: 100%; 
+    gap: 6px; 
+  }
+  .nav-link { padding: 7px 12px; font-size: 0.85rem; }
   .hero { padding: 52px 14px 44px; }
+  .hero h1 { font-size: 2.2rem; }
   .page { padding: 28px 14px 60px; }
   .search-bar { flex-direction: column; border-radius: 16px; }
+  .search-input { border-radius: 16px 16px 0 0; text-align: center; }
   .search-btn { border-radius: 0 0 16px 16px; padding: 14px; }
-  .meals-grid, .categories-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; }
-  .footer { flex-direction: column; text-align: center; }
+  .meals-grid, .categories-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
+  .footer { flex-direction: column; text-align: center; gap: 12px; }
+  .btn-back { margin-bottom: 20px; }
+  .detail-name { font-size: 1.8rem; text-align: center; }
+  .detail-top { flex-direction: column; align-items: center; }
+  .card-like-btn { top: 8px; right: 8px; width: 30px; height: 30px; font-size: 0.85rem; }
+  .meal-card-body { padding: 14px; gap: 10px; }
+  .meal-card-title { font-size: 0.95rem; }
+}
+@media (max-width: 380px) {
+  .meals-grid, .categories-grid { grid-template-columns: 1fr; }
 }

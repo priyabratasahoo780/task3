@@ -17,6 +17,9 @@ const Navbar = ({ likedCount, isDark, toggleTheme }) => (
         <NavLink to="/indian" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
           Indian
         </NavLink>
+        <NavLink to="/veg" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+          Vegetarian
+        </NavLink>
         <NavLink to="/categories" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
           Categories
         </NavLink>

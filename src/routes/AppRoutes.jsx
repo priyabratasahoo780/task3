@@ -6,6 +6,7 @@ import LikedMeals from '../pages/LikedMeals'
 import Categories from '../pages/Categories'
 import CategoryMeals from '../pages/CategoryMeals'
 import IndianMeals from '../pages/IndianMeals'
+import VegMeals from '../pages/VegMeals'
 
 /* AnimatePresence requires key=location.pathname so pages animate out properly */
 const AppRoutes = ({ likedIds, toggleLike, removeLike }) => {
@@ -19,6 +20,7 @@ const AppRoutes = ({ likedIds, toggleLike, removeLike }) => {
         <Route path="/categories"     element={<Categories />} />
         <Route path="/category/:name" element={<CategoryMeals likedIds={likedIds} toggleLike={toggleLike} />} />
         <Route path="/indian"         element={<IndianMeals   likedIds={likedIds} toggleLike={toggleLike} />} />
+        <Route path="/veg"            element={<VegMeals      likedIds={likedIds} toggleLike={toggleLike} />} />
       </Routes>
     </AnimatePresence>
   )

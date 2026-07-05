@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { filterByArea } from '../api/mealApi'
+import { filterByCategory } from '../api/mealApi'
 import MealCard from '../components/MealCard'
 import LoadingSpinner from '../components/LoadingSpinner'
 import EmptyState from '../components/EmptyState'
@@ -8,31 +8,31 @@ import EmptyState from '../components/EmptyState'
 const grid = { hidden: {}, show: { transition: { staggerChildren: 0.05 } } }
 const card = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.25 } } }
 
-const IndianMeals = ({ likedIds, toggleLike }) => {
+const VegMeals = ({ likedIds, toggleLike }) => {
   const [meals, setMeals] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
     setLoading(true)
-    filterByArea('India')
+    filterByCategory('Vegetarian')
       .then(d => setMeals(d.meals || []))
-      .catch(() => setError('Failed to load Indian meals.'))
+      .catch(() => setError('Failed to load Vegetarian meals.'))
       .finally(() => setLoading(false))
   }, [])
 
   return (
     <motion.div className="page" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
       <div className="page-header">
-        <h1>Indian Cuisine 🇮🇳</h1>
-        <p>Explore {meals.length > 0 ? meals.length : ''} delicious Indian recipes</p>
+        <h1>Vegetarian Meals 🥗</h1>
+        <p>Explore {meals.length > 0 ? meals.length : ''} delicious vegetarian recipes</p>
       </div>
 
-      {loading && <LoadingSpinner text="Loading Indian dishes…" />}
+      {loading && <LoadingSpinner text="Loading vegetarian dishes…" />}
       {error && <div className="error-box">{error}</div>}
 
       {!loading && !error && meals.length === 0 && (
-        <EmptyState icon="🍛" title="No meals found" subtitle="Could not load Indian meals at this time." />
+        <EmptyState icon="🥗" title="No meals found" subtitle="Could not load vegetarian meals at this time." />
       )}
 
       {!loading && !error && meals.length > 0 && (
@@ -52,4 +52,4 @@ const IndianMeals = ({ likedIds, toggleLike }) => {
   )
 }
 
-export default IndianMeals
+export default VegMeals
